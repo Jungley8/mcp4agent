@@ -139,17 +139,23 @@ class WeChatAPI:
         
         try:
             resp = requests.post(url, json={"offset": offset, "count": count}, timeout=30)
-            data = resp.json()
+            # 手动解析JSON以正确处理Unicode
+            import json
+            data = json.loads(resp.content.decode('utf-8'))
             
             if "item" in data:
-                return [
-                    {
+                result = []
+                for item in data["item"]:
+                    title = item.get("content", {}).get("news_item", [{}])[0].get("title", "")
+                    # 确保title是正常的unicode字符串
+                    if isinstance(title, str):
+                        title = title.encode().decode('unicode-escape')
+                    result.append({
                         "media_id": item.get("media_id"),
-                        "title": item.get("content", {}).get("news_item", [{}])[0].get("title", ""),
+                        "title": title,
                         "update_time": item.get("update_time", 0)
-                    }
-                    for item in data["item"]
-                ]
+                    })
+                return result
             return []
         except Exception as e:
             print(f"获取草稿列表异常: {e}")
