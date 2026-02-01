@@ -2,9 +2,12 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install dependencies FIRST (cache layer)
+# Copy source first
+COPY src/ ./src/
 COPY pyproject.toml README.md ./
-RUN pip install --no-cache-dir -e ".[dev]" && \
+
+# Install in development mode for proper package discovery
+RUN pip install --no-cache-dir -e . && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy application code AFTER dependencies
