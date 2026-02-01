@@ -70,16 +70,15 @@ def upload_image(image_path: str = None, image_base64: str = None) -> str:
         # 如果传入 base64，先保存到临时文件
         if image_base64:
             # 检查是否是 data URL 格式
-            if image_base64.startswith("data:"):
+            if "," in image_base64:
                 image_base64 = image_base64.split(",", 1)[1]
             
             image_data = base64.b64decode(image_base64)
             
             # 创建临时文件
-            fd, temp_path = tempfile.mkstemp(suffix=".jpg")
-            with os.write(fd, image_data) as f:
-                f.write(image_data)
-            os.close(fd)
+            temp_fd, temp_path = tempfile.mkstemp(suffix=".jpg")
+            os.write(temp_fd, image_data)
+            os.close(temp_fd)
             image_path = temp_path
         
         if not image_path or image_path == "None":
