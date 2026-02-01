@@ -3,13 +3,12 @@ FROM --platform=$TARGETPLATFORM python:3.10-slim
 
 WORKDIR /app
 
-# 复制全部源代码
-COPY src/ ./src/
 COPY pyproject.toml README.md ./
+RUN mkdir -p src/mcp4agent && touch src/mcp4agent/__init__.py
+RUN pip install --no-cache-dir -e .
 
-# 安装依赖（一次性）
-RUN pip install . && \
-    rm -rf /var/lib/apt/lists/*
+# 覆盖源代码
+COPY src/ ./src/
 
 # Set Python path
 ENV PYTHONPATH=/app
