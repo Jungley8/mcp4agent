@@ -8,11 +8,11 @@ COPY __init__.py __main__.py ./
 COPY src/ ./src/
 COPY pyproject.toml README.md ./
 
-# Install dependencies and package
-RUN pip install . && \
+# Install in editable mode for reliable imports
+RUN pip install -e . && \
     rm -rf /var/lib/apt/lists/*
 
-# Set Python path so 'python -m mcp4agent' works
+# Set Python path
 ENV PYTHONPATH=/app
 
 # Create non-root user
