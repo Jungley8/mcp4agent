@@ -12,7 +12,8 @@ app = FastMCP("wechat-mcp")
 def create_draft(
     title: str,
     content: str,
-    cover_image_path: str = None
+    cover_image_path: str = None,
+    thumb_media_id: str = None
 ) -> str:
     """
     创建微信公众号草稿
@@ -20,20 +21,25 @@ def create_draft(
     Args:
         title: 文章标题
         content: 文章内容（HTML格式）
-        cover_image_path: 封面图片路径（可选）
+        cover_image_path: 封面图片路径（可选，本地路径）
+        thumb_media_id: 封面media_id（可选，优先使用）
     
     Returns:
         操作结果消息
     """
     api = get_wechat_api()
     
-    thumb_media_id = None
-    if cover_image_path:
+    media_id = None
+    # 优先使用传入的 thumb_media_id
+    if thumb_media_id:
+        media_id = thumb_media_id
+    # 否则尝试上传本地图片
+    elif cover_image_path and cover_image_path != "None":
         result = api.upload_image(cover_image_path)
         if result:
-            thumb_media_id = result
+            media_id = result
     
-    draft_result = api.create_draft(title, content, thumb_media_id)
+    draft_result = api.create_draft(title, content, media_id)
     
     if draft_result:
         return f"✅ 草稿创建成功！media_id: {draft_result}"
@@ -42,23 +48,59 @@ def create_draft(
 
 
 @app.tool()
-def upload_image(image_path: str) -> str:
+def upload_image(image_path: str = None, image_base64: str = None) -> str:
     """
     上传图片到微信公众号获取media_id
     
     Args:
-        image_path: 图片文件路径
+        image_path: 图片文件路径（可选，与二选一）
+        image_base64: Base64编码的图片数据（可选，与二选一）
     
     Returns:
         操作结果消息
     """
     api = get_wechat_api()
-    result = api.upload_image(image_path)
     
-    if result:
-        return f"✅ 图片上传成功！media_id: {result}"
-    else:
-        return "❌ 图片上传失败"
+    import tempfile
+    import base64
+    import os
+    
+    temp_path = None
+    try:
+        # 如果传入 base64，先保存到临时文件
+        if image_base64:
+            # 检查是否是 data URL 格式
+            if image_base64.startswith("data:"):
+                image_base64 = image_base64.split(",", 1)[1]
+            
+            image_data = base64.b64decode(image_base64)
+            
+            # 创建临时文件
+            fd, temp_path = tempfile.mkstemp(suffix=".jpg")
+            with os.write(fd, image_data) as f:
+                f.write(image_data)
+            os.close(fd)
+            image_path = temp_path
+        
+        if not image_path or image_path == "None":
+            return "❌ 请提供 image_path 或 image_base64"
+        
+        result = api.upload_image(image_path)
+        
+        if result:
+            return f"✅ 图片上传成功！media_id: {result}"
+        else:
+            return "❌ 图片上传失败"
+            
+    except Exception as e:
+        return f"❌ 图片上传异常: {str(e)}"
+    finally:
+        # 清理临时文件
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except:
+                pass
 
 
 @app.tool()
