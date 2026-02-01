@@ -2,15 +2,12 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Copy source first
-COPY src/ ./src/
+# Layer 1: Install dependencies first (for caching)
 COPY pyproject.toml README.md ./
-
-# Install in development mode for proper package discovery
 RUN pip install --no-cache-dir -e . && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy application code AFTER dependencies
+# Layer 2: Copy source code (rebuilds only when code changes)
 COPY src/ ./src/
 
 # Create non-root user
@@ -29,4 +26,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import socket; s=socket.socket(); s.connect(('localhost', 8080)); s.close()" || exit 1
 
+# Run the MCP server
 CMD ["python", "-m", "wechat_mcp"]
