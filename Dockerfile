@@ -3,12 +3,12 @@ FROM --platform=$TARGETPLATFORM python:3.10-slim
 
 WORKDIR /app
 
-# Copy source and install
+# 复制全部源代码
 COPY src/ ./src/
 COPY pyproject.toml README.md ./
 
-# Install in editable mode for reliable imports
-RUN pip install -e . && \
+# 安装依赖（一次性）
+RUN pip install . && \
     rm -rf /var/lib/apt/lists/*
 
 # Set Python path
