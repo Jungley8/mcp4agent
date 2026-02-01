@@ -1,10 +1,14 @@
-FROM python:3.10-slim
+# syntax=docker/dockerfile:1
+FROM --platform=$TARGETPLATFORM python:3.10-slim
 
 WORKDIR /app
 
 # Layer 1: Install dependencies first (for caching)
 COPY pyproject.toml README.md ./
-RUN pip install --no-cache-dir -e . && \
+
+# Use BuildKit cache mounts for pip - dramatically speeds up rebuilds
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-cache-dir -e . && \
     rm -rf /var/lib/apt/lists/*
 
 # Layer 2: Copy source code (rebuilds only when code changes)
@@ -27,4 +31,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import socket; s=socket.socket(); s.connect(('localhost', 8080)); s.close()" || exit 1
 
 # Run the MCP server
-CMD ["python", "-m", "wechat_mcp"]
+CMD ["python", "-m", "mcp4agent"]

@@ -1,7 +1,7 @@
 [project]
-name = "wechat-mcp"
-version = "0.2.0"
-description = "微信公众号MCP服务器 - 支持Docker容器监控"
+name = "mcp4agent"
+version = "0.3.0"
+description = "MCP服务器集合 - 微信公众号管理 + Docker容器监控"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -24,6 +24,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setup.packages.find]
 where = ["src"]
+include = ["wechat_mcp*", "docker_status*"]
 
 [tool.black]
 line-length = 100

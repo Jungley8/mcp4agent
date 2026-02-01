@@ -7,21 +7,11 @@ from .api import WeChatAPI, get_wechat_api
 from .config import Config, config
 from .token_cache import TokenCache, get_token_cache
 
-# Docker相关
-from .docker_status import (
-    list_containers,
-    get_container_stats,
-    get_container_logs,
-    restart_container,
-    docker_app,
-)
-
 __all__ = [
     # 版本
     "__version__",
     # FastMCP应用
     "app",
-    "docker_app",
     # 微信工具
     "create_draft",
     "upload_image",
@@ -36,9 +26,4 @@ __all__ = [
     # 缓存
     "TokenCache",
     "get_token_cache",
-    # Docker工具
-    "list_containers",
-    "get_container_stats",
-    "get_container_logs",
-    "restart_container",
 ]

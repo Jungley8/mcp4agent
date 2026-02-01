@@ -1,6 +1,29 @@
-# 微信公众号 MCP Server + Docker 监控
+# MCP4Agent - 多功能MCP服务器
 
 微信公众号管理工具，支持文章发布、草稿管理等功能。同时提供 Docker 容器监控功能。
+
+## 项目结构
+
+```
+mcp4agent/
+├── src/
+│   ├── wechat_mcp/          # 微信公众号 MCP 包
+│   │   ├── __init__.py
+│   │   ├── server.py        # FastMCP 服务器和工具
+│   │   ├── api.py           # 微信 API 封装
+│   │   ├── config.py        # 配置管理
+│   │   └── token_cache.py   # Token 缓存
+│   ├── docker_status/       # Docker 监控 MCP 包
+│   │   ├── __init__.py
+│   │   └── server.py        # Docker 工具
+│   ├── __init__.py          # 导出两个 MCP 应用
+│   └── __main__.py          # 入口点
+├── tests/
+├── Dockerfile               # 优化构建（BuildKit 缓存）
+├── docker-compose.yml
+├── pyproject.toml           # 多包配置
+└── README.md
+```
 
 ## 功能特性
 
@@ -40,10 +63,16 @@ cp .env.example .env
 
 ## 使用
 
-启动MCP服务器：
+### 运行微信公众号服务器
 
 ```bash
-python -m wechat_mcp
+python -m mcp4agent --app wechat
+```
+
+### 运行 Docker 监控服务器
+
+```bash
+python -m mcp4agent --app docker
 ```
 
 ## Docker 监控使用
@@ -92,7 +121,7 @@ token = cache.get_access_token(app_id, app_secret)
 ### 构建镜像
 
 ```bash
-docker build -t wechat-mcp .
+DOCKER_BUILDKIT=1 docker build -t mcp4agent .
 ```
 
 ### 使用 Docker Compose（推荐）
@@ -112,12 +141,12 @@ docker-compose up -d
 
 ```bash
 docker run -d \
-  --name wechat-mcp \
+  --name mcp4agent \
   -p 8080:8080 \
   -e WECHAT_APP_ID=your_app_id \
   -e WECHAT_APP_SECRET=your_app_secret \
   -v $(pwd)/data:/app/.cache \
-  wechat-mcp
+  mcp4agent
 ```
 
 ### 环境变量
@@ -134,13 +163,13 @@ docker run -d \
 
 ```bash
 docker run -d \
-  --name wechat-mcp \
+  --name mcp4agent \
   -p 8080:8080 \
   -e WECHAT_APP_ID=your_app_id \
   -e WECHAT_APP_SECRET=your_app_secret \
   -v $(pwd)/data:/app/.cache \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  wechat-mcp
+  mcp4agent
 ```
 
 ⚠️ **注意**: 挂载 Docker socket 有安全风险，仅在可信环境中使用。
@@ -150,6 +179,12 @@ docker run -d \
 服务运行在 8080 端口，MCP 客户端可连接进行健康检查。
 
 ## 更新日志
+
+### v0.3.0
+- 重构为多包架构 (mcp4agent)
+- 分离 wechat_mcp 和 docker_status 为独立包
+- 添加 BuildKit 缓存优化 Docker 构建
+- 支持多平台构建
 
 ### v0.2.0
 - 迁移到 FastMCP 框架

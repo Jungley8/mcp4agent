@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  wechat-mcp:
+  mcp4agent:
     build: .
-    container_name: wechat-mcp
+    container_name: mcp4agent
     ports:
       - "8080:8080"
     environment:
