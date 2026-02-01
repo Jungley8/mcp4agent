@@ -2,7 +2,7 @@
 __version__ = "0.3.0"
 
 # WeChat MCP
-from wechat_mcp import (
+from ..wechat_mcp import (
     app as wechat_app,
     create_draft,
     upload_image,
@@ -17,7 +17,7 @@ from wechat_mcp import (
 )
 
 # Docker Status MCP
-from docker_status import (
+from ..docker_status import (
     docker_app,
     list_containers,
     get_container_stats,
@@ -33,12 +33,6 @@ __all__ = [
     "upload_image",
     "list_drafts",
     "publish_draft",
-    "WeChatAPI",
-    "get_wechat_api",
-    "Config",
-    "config",
-    "TokenCache",
-    "get_token_cache",
     # Docker
     "docker_app",
     "list_containers",

@@ -4,7 +4,6 @@ FROM --platform=$TARGETPLATFORM python:3.10-slim
 WORKDIR /app
 
 # Copy source and install
-COPY __init__.py __main__.py ./
 COPY src/ ./src/
 COPY pyproject.toml README.md ./
 
