@@ -12,7 +12,7 @@ class TokenCache:
     """Access Token缓存管理"""
     
     def __init__(self):
-        self._cache_dir = config.token_cache_dir
+        self._cache_dir = Path(config.token_cache_dir)
         self._cache_dir.mkdir(parents=True, exist_ok=True)
         self._cache = dc.Cache(self._cache_dir, expire=7000)  # 微信token有效期2小时，缓存1小时50分
     
