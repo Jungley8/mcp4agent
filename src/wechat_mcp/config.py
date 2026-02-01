@@ -18,7 +18,8 @@ class Config:
     
     @property
     def token_cache_dir(self) -> str:
-        return os.path.expanduser(os.getenv("WECHAT_TOKEN_CACHE_DIR", "~/.cache/wechat-mcp"))
+        default_cache = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".cache", "wechat-mcp")
+        return os.getenv("WECHAT_TOKEN_CACHE_DIR", default_cache)
     
     def validate(self) -> bool:
         """验证配置是否完整"""
