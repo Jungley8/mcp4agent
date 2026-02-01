@@ -24,7 +24,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.setup.packages.find]
 where = ["src"]
-include = ["mcp4agent*", "wechat_mcp*", "docker_status*"]
 
 [tool.black]
 line-length = 100

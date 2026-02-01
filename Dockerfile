@@ -1,67 +1,26 @@
 # syntax=docker/dockerfile:1
-# ============================================
-# MCP4Agent - Multi-package MCP Server
-# Built with BuildKit for optimal caching
-# ============================================
-
-# -----------------------
-# Base Image
-# -----------------------
-FROM --platform=$TARGETPLATFORM python:3.10-slim AS base
-
-# Set Python encoding
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+FROM --platform=$TARGETPLATFORM python:3.10-slim
 
 WORKDIR /app
 
-# -----------------------
-# Dependencies Stage
-# -----------------------
-FROM base AS deps
-
-# Copy only dependency files first (for better caching)
-COPY pyproject.toml README.md .
-
-# Install dependencies with BuildKit cache mount
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install . && \
-    rm -rf /var/lib/apt/lists/*
-
-# -----------------------
-# Production Stage
-# -----------------------
-FROM base AS production
-
-# Copy source code
+# Copy source and install
 COPY src/ ./src/
-
-# Copy dependency files
 COPY pyproject.toml README.md ./
 
-# Install dependencies using cache from deps stage
-# This reuses the pip cache from the deps layer
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install . && \
+# Install dependencies and package
+RUN pip install . && \
     rm -rf /var/lib/apt/lists/*
+
+# Set Python path so 'python -m mcp4agent' works
+ENV PYTHONPATH=/app
 
 # Create non-root user
 RUN useradd --create-home --shell /bin/bash appuser && \
     chown -R appuser:appuser /app
 USER appuser
 
-# Environment variables
-ENV PYTHONPATH=/app \
-    WECHAT_TOKEN_CACHE_DIR=/app/.cache \
-    PIP_CACHE_DIR=/root/.cache/pip
-
 # Expose MCP ports
 EXPOSE 8080 8081
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import socket; s=socket.socket(); s.connect(('localhost', 8080)); s.close()" || exit 1
-
-# Run the MCP server (all services)
+# Run the MCP server
 CMD ["python", "-m", "mcp4agent"]
