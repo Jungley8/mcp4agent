@@ -13,8 +13,9 @@ COPY src/ ./src/
 # Set Python path
 ENV PYTHONPATH=/app
 
-# Create non-root user
-RUN useradd --create-home --shell /bin/bash appuser && \
+# Create cache directory and non-root user
+RUN mkdir -p /app/.cache && \
+    useradd --create-home --shell /bin/bash appuser && \
     chown -R appuser:appuser /app
 USER appuser
 
