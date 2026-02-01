@@ -12,7 +12,7 @@ services:
       - WECHAT_APP_SECRET=${WECHAT_APP_SECRET}
       - WECHAT_TOKEN_CACHE_DIR=/app/.cache
     volumes:
-      - ./data:/app/.cache
+      - cache_data:/app/.cache
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     healthcheck:
@@ -21,3 +21,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+
+volumes:
+  cache_data:
