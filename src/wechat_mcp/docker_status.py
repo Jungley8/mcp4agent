@@ -1,7 +1,11 @@
-"""Docker容器监控工具"""
+"""Docker容器监控工具 - FastMCP 2.x"""
 import docker
 from docker.errors import DockerException, NotFound
 from typing import Optional, Dict, Any, List
+from fastmcp import FastMCP
+
+# 创建Docker监控的FastMCP实例
+docker_app = FastMCP("docker-mcp")
 
 
 def get_client() -> docker.DockerClient:
@@ -9,7 +13,7 @@ def get_client() -> docker.DockerClient:
     return docker.from_env()
 
 
-@app.tool()
+@docker_app.tool()
 def list_containers(all_containers: bool = False) -> str:
     """
     列出所有Docker容器及其状态
@@ -46,7 +50,7 @@ def list_containers(all_containers: bool = False) -> str:
         return f"❌ Docker连接失败: {str(e)}"
 
 
-@app.tool()
+@docker_app.tool()
 def get_container_stats(container_id: str) -> str:
     """
     获取容器的CPU、内存、网络使用情况
@@ -100,7 +104,7 @@ def get_container_stats(container_id: str) -> str:
         return f"❌ Docker错误: {str(e)}"
 
 
-@app.tool()
+@docker_app.tool()
 def get_container_logs(container_id: str, lines: int = 50, tail: bool = False) -> str:
     """
     获取容器的日志输出
@@ -143,7 +147,7 @@ def get_container_logs(container_id: str, lines: int = 50, tail: bool = False) -
         return f"❌ Docker错误: {str(e)}"
 
 
-@app.tool()
+@docker_app.tool()
 def restart_container(container_id: str) -> str:
     """
     重启Docker容器
@@ -166,19 +170,3 @@ def restart_container(container_id: str) -> str:
         return f"❌ 容器未找到: {container_id}"
     except DockerException as e:
         return f"❌ Docker错误: {str(e)}"
-
-
-# 导入docker模块并创建FastMCP实例
-from fastmcp import FastMCP
-
-docker_app = FastMCP("docker-mcp")
-
-# 迁移工具函数到docker_app实例
-def _setup_docker_tools():
-    """将工具函数注册到docker_app实例"""
-    docker_app.tool()(list_containers)
-    docker_app.tool()(get_container_stats)
-    docker_app.tool()(get_container_logs)
-    docker_app.tool()(restart_container)
-
-_setup_docker_tools()
